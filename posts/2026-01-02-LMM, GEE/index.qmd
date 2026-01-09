@@ -17,6 +17,8 @@ execute:
 draft: false
 license: CC BY-NC
 ---
+## Introduction
+
 의료 분야의 데이터는 같은 환자에 대해 반복 측정하거나, 같은 병원에서 측정하는 자료 등으로 구성되어있는 경우가 많다. 즉, 데이터들 간에 상관관계가 존재하기 때문에 독립성 가정이 깨져, 회귀분석을 사용하지 못한다. 그렇기 때문에 의료 데이터 분석에는 LMM(Linear Mixed model)과 GEE(Generaluzed Estimating Equation)이 자주 사용된다. 이러한 방법들을 사용할 때, 데이터의 형태에 따라 제약조건들이 존재하고, 연구자들에게 혼동을 주기도 한다. 본 Article에서는 LMM의 제약조건으로 인해, GEE의 사용가능여부를 혼동하게 되는 상황에 대해서 알아볼 것이다. 
 
 ## LMM의 기본 구조
@@ -41,10 +43,11 @@ LMM의 핵심은 $\mathbf{b}_i$와 $\boldsymbol{\epsilon}_i$에 부여되는 확
 $$
 \begin{pmatrix} \mathbf{b}_i \\ \boldsymbol{\epsilon}_i \end{pmatrix} \sim \mathcal{N} \left( \begin{pmatrix} \mathbf{0} \\ \mathbf{0} \end{pmatrix}, \begin{pmatrix} \mathbf{G} & \mathbf{0} \\ \mathbf{0} & \mathbf{R}_i \end{pmatrix} \right)
 $$
-여기서 $\mathbf{G}$는 환자 간의 이질성(Between-subject variability)을 설명하는 공분산 행렬이며, $\mathbf{R}_i$는 환자 내 잔차의 공분산 행렬이다. 가장 단순한 형태인 조건부 독립(Conditional Independence) 가정 하에서는 $\mathbf{R}_i = \sigma^2 \mathbf{I}{n_i}$가 된다. 
+여기서 $\mathbf{G}$는 환자 간의 이질성(Between-subject variability)을 설명하는 공분산 행렬이며, $\mathbf{R}_i$는 환자 내 잔차의 공분산 행렬이다.
+가장 단순한 형태인 조건부 독립(Conditional Independence) 가정 하에서는 $\mathbf{R}_i = \sigma^2 \mathbf{I}_{n_i}$가 된다. 
 이는 "환자 고유의 특성 $\mathbf{b}_i$가 주어졌을 때, 반복 측정된 오차들은 서로 독립적이다"라는 가정을 의미한다.
 
-#LMM에서 조건부 분포와 Marginal 분포
+## LMM에서 조건부 분포와 Marginal 분포
 
 조건부 분포는 아래와 같이 얻어진다.
 
@@ -93,21 +96,22 @@ $$
 이 목적 함수는 데이터 $\mathbf{y}_i$가 다변량 정규분포를 따른다는 전제하에 도출되었다. 그러나 실제 의료 데이터는 정규성을 심각하게 위배하는 경우가 빈번하다.
 
 그러한 경우에 속하는 대표적인 데이터들은 아래와 같다.
--비연속적 결과 변수 : 치료 성공 여부(Binary), 발작 횟수(Count), 질병의 단계(Ordinal) 등은 정규분포로 근사하기 어렵다.
--유계 데이터(Bounded Data): 통증 점수(VAS 0-10), 삶의 질 지수(0-1), 검사 수치(항상 양수) 등은 정의역이 제한되어 있어 정규분포의 무한한 지지 집합(Support) 가정과 충돌한다.
--Skewness & Kurtosis: 의료 비용이나 재원 기간 데이터는 전형적으로 오른쪽으로 긴 꼬리를 가진 분포(Log-normal or Gamma-like)를 보인다.
+
+- 비연속적 결과 변수 : 치료 성공 여부(Binary), 발작 횟수(Count), 질병의 단계(Ordinal) 등은 정규분포로 근사하기 어렵다.
+- 유계 데이터(Bounded Data): 통증 점수(VAS 0-10), 삶의 질 지수(0-1), 검사 수치(항상 양수) 등은 정의역이 제한되어 있어 정규분포의 무한한 지지 집합(Support) 가정과 충돌한다.
+- Skewness & Kurtosis: 의료 비용이나 재원 기간 데이터는 전형적으로 오른쪽으로 긴 꼬리를 가진 분포(Log-normal or Gamma-like)를 보인다.
 
 이러한 비정규 데이터에 LMM을 강제로 적용할 경우 발생할 수 있는 문제는 단순히 모델 적합도가 떨어지는 것에 그치지 않는다.
 다음과 같은 심각한 문제상황을 발생 시킬 수 있기 때문이다.
 
-**표준오차의 왜곡**: 정규성 가정에 기반한 분산 추정량은 데이터의 이분산성(Heteroscedasticity)이나 비정규성을 반영하지 못해, 표준오차를 부정확하게 계산한다. 이는 신뢰구간의 포함 확률을 떨어뜨리고 p-value의 신뢰성을 훼손한다.
-**추정 효율성 저하**: MLE는 정규분포 하에서만 효율적이다. 분포가 다를 경우, 더 적절한 분포를 가정한 모델보다 추정량의 분산이 커질 수 있다.
+**-표준오차의 왜곡**: 정규성 가정에 기반한 분산 추정량은 데이터의 이분산성(Heteroscedasticity)이나 비정규성을 반영하지 못해, 표준오차를 부정확하게 계산한다. 이는 신뢰구간의 포함 확률을 떨어뜨리고 p-value의 신뢰성을 훼손한다.
+
+**-추정 효율성 저하**: MLE는 정규분포 하에서만 효율적이다. 분포가 다를 경우, 더 적절한 분포를 가정한 모델보다 추정량의 분산이 커질 수 있다.
 
 ## GEE의 기본 구조: 추정방정식 + quasi(평균–분산) + 상관구조
 
 GEE(Generalized Estimating Equations)는 특정 분포의 우도(likelihood)를 세우기보다, 반복측정 자료에서 평균모형을 기반으로 $\boldsymbol{\beta}$를 추정하는 **추정방정식(estimating equation)** 접근이다. 즉, 데이터의 전체 결합 분포(Joint Distribution)를 완벽하게 명시하지 않더라도, 관심 있는 평균 파라미터($\boldsymbol{\beta}$)를 일관되게 추정할 수 있다는 점에 착안한다.
 
----
 
 ## 평균모형과 추정방정식
 
@@ -137,8 +141,6 @@ $$
 상관된 데이터로 확장시킨 일반화 추정 방정식이다.
 (이 식의 구조는 가중 최소 제곱법(Weighted Least Squares)과 유사하다. 잔차 $(\mathbf{y}_i - \boldsymbol{\mu}_i)$에 공분산의 역행렬 $\mathbf{V}_i^{-1}$을 가중치로 곱함으로써, 변동이 크거나 상관성이 높은 데이터 포인트의 영향력을 적절히 조절한다.)
 
----
-
 ## Quasi(평균–분산 관계): $\mathbf{V}_i$를 만들기 위한 2차 구조
 
 GEE가 "분포를 가정하지 않는다"고 할 때, 이는 확률 밀도 함수 전체를 특정하지 않는다는 의미이다. 대신 GEE는 첫 번째 모멘트(평균)와 두 번째 모멘트(분산)의 관계만을 정의하는 준우도(Quasi-Likelihood) 접근을 취한다.
@@ -153,16 +155,14 @@ $$
 $V(\mu)$는 “분산이 평균에 따라 어떻게 달라지는지”를 정하는 선택이다.
 흔히 사용되는 설정은 다음과 같다.
 
--Gaussian-like: $V(\mu) = 1$ (분산이 일정함)
--Bernoulli-like: $V(\mu) = \mu(1-\mu)$ (평균이 0.5일 때 분산 최대)
--Poisson-like: $V(\mu) = \mu$ (평균과 분산이 같음)
--Negative Binomial-like: $V(\mu) = \mu + k\mu^2$
+- Gaussian-like: $V(\mu) = 1$ (분산이 일정함)
+- Bernoulli-like: $V(\mu) = \mu(1-\mu)$ (평균이 0.5일 때 분산 최대)
+- Poisson-like: $V(\mu) = \mu$ (평균과 분산이 같음)
+- Negative Binomial-like: $V(\mu) = \mu + k\mu^2$
 
 이러한 설정은 데이터 생성 분포를 완벽하게 묘사하려는 것이 아니라, 회귀 계수 추정에 필요한 최소한의 정보(평균-분산 관계)만을 모델링하는 것이다. 따라서 **실제 데이터가 해당 분포를 정확히 따르지 않더라도, 평균 모델이 올바르다면 $\hat{\boldsymbol{\beta}}$는 참값으로 수렴하는 일치성(Consistency)을 유지한다.**
 
----
-
-##GEE의 핵심: 작업 공분산 행렬과 샌드위치 추정량
+## GEE의 핵심: 작업 공분산 행렬과 샌드위치 추정량
 
 GEE의 가장 독창적인 부분은 반복측정 자료에서 한 개인(클러스터) 내부의 상관을 “완벽히 맞추려고” 하기보다, $\beta$의 일관된 추정에 필요한 수준으로 공분산 $\mathbf{V}_i$를 분해하고 처리하는 방식에 있다. $\mathbf{V}_i$는 다음과 같이 분해된다.
 $$\mathbf{V}_i = \phi \mathbf{A}_i^{1/2} \mathbf{R}_i(\boldsymbol{\alpha}) \mathbf{A}_i^{1/2}$$
@@ -176,8 +176,8 @@ $\mathbf{R}_i(\boldsymbol{\alpha})$: 시점 간 상관의 패턴(correlation pat
 $\phi$: 전체 분산 스케일(scale)
 을 분리해서 다루겠다는 의미이다. 
 
- $\mathbf{R}_i(\boldsymbol{\alpha})$을 "작업 상관 행렬 (Working Correlation Matrix)"이라 부르는 이유는 연구자가 선택한 상관구조가 실제 데이터의 진짜 상관구조와 같을 필요가 없고, 실제로 다를 수 있음을 강조하기 위해서이다. 예를 들어 exchangeable, AR(1), independence 등은 분석을 진행하기 위한 합리적 근사일 뿐이며, 참모형을 선언하는 것이 아니다. GEE의 핵심 정리는 작업 상관구조 $\mathbf{R}_i$를 잘못 설정하더라도(working misspecification), 평균모형이 올바르게 주어졌다면 $\hat{\boldsymbol{\beta}}$는 여전히 일치 추정량(consistency)으로 남는다는 것이다. 다만 이 경우 모형을 그대로 믿고 계산한 표준오차(model-based/naive SE)는 왜곡될 수 있으므로, 강건한 표준오차(robust SE)를 사용해야 유효한 추론이 가능하다.
-이 강건성을 실제로 보장하는 것이 샌드위치 공분산 추정량(sandwich covariance estimator)이며, GEE에서 $\hat{\boldsymbol{\beta}}$의 공분산은 다음 형태로 추정된다.
+ $\mathbf{R}_i(\boldsymbol{\alpha})$을 "**작업 상관 행렬 (Working Correlation Matrix)**"이라 부르는 이유는 연구자가 선택한 상관구조가 실제 데이터의 진짜 상관구조와 같을 필요가 없고, 실제로 다를 수 있음을 강조하기 위해서이다. 예를 들어 exchangeable, AR(1), independence 등은 분석을 진행하기 위한 합리적 근사일 뿐이며, 참모형을 선언하는 것이 아니다. GEE의 핵심 정리는 작업 상관구조 $\mathbf{R}_i$를 잘못 설정하더라도(working misspecification), 평균모형이 올바르게 주어졌다면 $\hat{\boldsymbol{\beta}}$는 여전히 일치 추정량(consistency)으로 남는다는 것이다. 다만 이 경우 모형을 그대로 믿고 계산한 표준오차(model-based/naive SE)는 왜곡될 수 있으므로, 강건한 표준오차(robust SE)를 사용해야 유효한 추론이 가능하다.
+이 강건성을 실제로 보장하는 것이 **샌드위치 공분산 추정량(sandwich covariance estimator)**이며, GEE에서 $\hat{\boldsymbol{\beta}}$의 공분산은 다음 형태로 추정된다.
 $$\text{Cov}(\hat{\boldsymbol{\beta}}) = \mathbf{M}_0^{-1} \mathbf{M}_1 \mathbf{M}_0^{-1}$$
 여기서 $\mathbf{M}_0$는
 $$\mathbf{M}_0=\sum \mathbf{D}_i^\top \mathbf{V}_i^{-1} \mathbf{D}_i$$
@@ -196,16 +196,14 @@ LMM은 **정규-우도 기반 추론**이 기본이기 때문에, outcome이 정
 
 다만 GEE가 무가정이라는 뜻은 아니다. 클러스터 간 독립(대개 환자 간 독립), 평균모형의 적절성, 그리고 클러스터 수 $m$이 충분하지 않을 때 robust 표준오차가 불안정할 수 있다는 점은 함께 고려해야 한다.
 
----
 
 ## 상관구조 $\mathbf{R}_i(\alpha)$: independence vs exchangeable를 어떻게 이해하고 선택할까
 
 GEE에서 작업 상관행렬 $\mathbf{R}_i(\boldsymbol{\alpha})$는 환자 $i$의 반복측정 값들 사이의 상관을 반영하기 위한 장치다. 다만 핵심은 $\mathbf{R}_i$가 “현실의 상관구조를 정확히 재현하는 참모형”이 아니라, 공분산 $\mathbf{V}_i$를 구성할 때 필요한 상관 패턴을 단순화해서 두는 working 가정이라는 점이다. 
 따라서 상관구조 선택을 “정답 고르기” 문제로 만들기보다는, 상관구조를 바꿔도 핵심 결론(예: $Time \times Group$ 또는 slope 차이)이 유지되는지를 함께 보여주는 방식이 가장 설득력 있다.
 
----
 
-### Independence
+## Independence
 
 $$
 \mathbf{R}_i(\alpha)=\mathbf{I}_{n_i}.
@@ -219,9 +217,8 @@ independence는 환자 내 상관을 0으로 두는 가정이다. 반복측정 �
 
 즉 independence는 기준점으로 두고, 다른 상관구조와 비교했을 때 결론이 크게 달라지는지 확인하는 용도로도 자주 쓰인다.
 
----
 
-### Exchangeable (compound symmetry)
+## Exchangeable (compound symmetry)
 
 $$
 (\mathbf{R}_i)_{jk}=
@@ -236,12 +233,12 @@ exchangeable은 같은 환자 내 임의의 두 시점 관측치가 동일한 �
 - 장점: 환자 내 상관을 반영하면서도 모수(상관모수)가 $\rho$ 하나라 단순하고, 보고/해석이 깔끔하며 효율이 좋아질 수 있다.
 - 단점: 시간 간격에 따라 상관이 달라지는 패턴(예: 가까운 시점끼리 더 강한 상관)을 표현하지 못한다.
 
----
 
-### 상관구조의 선택 ###
+## 상관구조의 선택
 
 작업 상관구조를 하나로 단정하기 어렵다면, 가장 자연스러운 제시는 
-**(1) 주 분석의 기본 구조를 정하고, (2) 다른 구조로 민감도 분석을 수행해 결론의 견고함을 확인**하는 방식이다. 여기서 중요한 것은 “exchangeable이 이론적으로 더 좋아 보인다”가 아니라, 
+**(1) 주 분석의 기본 구조를 정하고, (2) 다른 구조로 민감도 분석을 수행해 결론의 견고함을 확인**하는 방식이다. 여기서 중요한 것은 “exchangeable이 이론적으로 더 좋아 보인다”가 아니라
+
 **데이터가 exchangeable을 추정할 만큼의 정보가 있고 적합이 안정적인지**다.
 다음과 같은 상황에서는 exchangeable을 쓰는 것이 현실적으로 어렵거나(수렴/추정 불안정), $\rho$ 추정 자체가 의미 있게 되기 힘들다.
 
@@ -254,8 +251,11 @@ exchangeable은 같은 환자 내 임의의 두 시점 관측치가 동일한 �
 GEE의 목적이 평균효과 $\boldsymbol{\beta}$의 추정과 강건한 추론에 있는 만큼, 불안정한 $\rho$를 억지로 추정하는 것보다 가정을 최소화하고 robust SE로 추론하는 전략이 리뷰어 관점에서도 납득 가능하다.
 정리하면 선택 흐름은 다음 두 가지 중 하나로 가져가면 된다.
 
-**exchangeable이 안정적으로 적합되고 $\hat{\rho}$ 추정이 합리적인 경우 경우** -> exchangeable 상관구조를 사용한다.
-**exchangeable이 불안정하거나(수렴/경고/극단적 $\hat{\rho}$) 상관 추정 정보가 부족한 경우** -> 주 분석을 independence로 두고, 가능하다면 exchangeable 시도 결과를 민감도 분석(또는 부록)으로만 언급한다.
+**- exchangeable이 안정적으로 적합되고 $\hat{\rho}$ 추정이 합리적인 경우 경우: **
+exchangeable 상관구조를 사용한다.
+
+**- exchangeable이 불안정하거나(수렴/경고/극단적 $\hat{\rho}$) 상관 추정 정보가 부족한 경우: **
+주 분석을 independence로 두고, 가능하다면 exchangeable 시도 결과를 민감도 분석(또는 부록)으로만 언급한다.
 
 결론적으로, Outcome의 비정규성이 우려되는 상황이라면 정규 우도(Likelihood)에 기반한 LMM의 제약에서 벗어나, Quasi-likelihood와 Robust 표준오차를 제공하는 GEE를 적극적으로 고려한다. 
 이때 상관구조의 선택은 단순히 '구조의 정답'을 찾는 과정이라기보다, 데이터의 복잡도와 수렴 안정성을 고려하는 판단의 과정이다. 모델이 안정적이라면 Exchangeable을, 추정 정보가 부족하거나 수렴이 불안정하다면 Independence를 기본으로 두되, 상관구조 변경에도 결론이 일관되게 유지되는지 확인하는 과정을 거친다면 더 신뢰도 높은 결과를 도출할 수 있을 것이다.
