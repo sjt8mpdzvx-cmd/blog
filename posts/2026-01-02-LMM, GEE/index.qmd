@@ -28,12 +28,13 @@ $$
 \mathbf{y}_i = \mathbf{X}_i\boldsymbol{\beta} + \mathbf{Z}_i\mathbf{b}_i + \boldsymbol{\epsilon}_i, \quad i=1,\dots,m
 $$
 여기서:
--$\mathbf{y}_i$: $i$번째 환자의 반응변수 벡터 ($n_i \times 1$)
--$\mathbf{X}_i$: 고정 효과에 대한 설계 행렬 ($n_i \times p$)
--$\boldsymbol{\beta}$: 고정 효과 회귀 계수 벡터 ($p \times 1$)
--$\mathbf{Z}_i$: 랜덤 효과에 대한 설계 행렬 ($n_i \times q$)
--$\mathbf{b}_i$: 랜덤 효과 벡터 ($q \times 1$)
--$\boldsymbol{\epsilon}_i$: 잔차 벡터 ($n_i \times 1$)
+
+- $\mathbf{y}_i$: $i$번째 환자의 반응변수 벡터 ($n_i \times 1$)
+- $\mathbf{X}_i$: 고정 효과에 대한 설계 행렬 ($n_i \times p$)
+- $\boldsymbol{\beta}$: 고정 효과 회귀 계수 벡터 ($p \times 1$)
+- $\mathbf{Z}_i$: 랜덤 효과에 대한 설계 행렬 ($n_i \times q$)
+- $\mathbf{b}_i$: 랜덤 효과 벡터 ($q \times 1$)
+- $\boldsymbol{\epsilon}_i$: 잔차 벡터 ($n_i \times 1$)
 
 LMM의 핵심은 $\mathbf{b}_i$와 $\boldsymbol{\epsilon}_i$에 부여되는 확률 분포 가정에 있다. 가우시안 LMM은 이 두 요소가 서로 독립이며 다변량 정규분포를 따른다고 가정한다
 
